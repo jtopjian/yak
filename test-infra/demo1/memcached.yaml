@@ -1,0 +1,52 @@
+targets:
+  memcached:
+    type: openstack_instances
+    auth: yyc
+    options:
+      use_ipv6: true
+      metadata:
+        yak: memcached
+
+connections:
+  ssh:
+    type: ssh
+    options:
+      user: ubuntu
+      private_key: ~/infrastructure/keys/infra
+    targets:
+      - memcached
+
+task::state:
+  defaults:
+    sudo: true
+    targets:
+      - memcached
+
+  steps:
+    - name: install memcached
+      action: apt.pkg
+      input:
+        name: memcached
+        state: absent
+
+    - name: install rabbit apt-key
+      action: apt.key
+      input:
+        name: 6026DFCA
+        remote_key_file: https://www.rabbitmq.com/rabbitmq-release-signing-key.asc
+
+    - name: install redis ppa
+      action: apt.ppa
+      input:
+        name: chris-lea/redis-server
+        state: absent
+
+    - name: add rabbitmq apt source
+      action: apt.source
+      input:
+        name: rabbitmq
+        uri: http://www.rabbitmq.com/debian/
+        distribution: testing
+        component: main
+        include_src: true
+        state: absent

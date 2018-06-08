@@ -1,0 +1,60 @@
+vars:
+  foo: bar
+  bar: baz
+
+varfiles:
+  - /path/to/file.yaml
+
+targets:
+  remote:
+    type: textfile
+    options:
+      file: hosts.txt
+
+connections:
+  ssh:
+    type: ssh
+    options:
+      private_key: /root/.ssh/id_rsa
+    targets:
+      - remote
+
+notifiers:
+  - name: some other echo command
+    action: exec
+    input:
+      cmd: echo "pong"
+
+  - name: sleep some more
+    action: exec
+    input:
+      cmd: sleep 1
+
+task::state:
+  steps:
+    - name: some echo command
+      action: exec
+      input:
+        cmd: echo "ping"
+      notify: some other echo command
+
+    - name: sleep
+      action: exec
+      input:
+        cmd: sleep 1
+      targets:
+        - local
+      notify: sleep some more
+
+    - name: pwd
+      action: exec
+      input:
+        cmd: pwd
+
+    - name: unless
+      action: exec
+      input:
+        cmd: pwd
+        unless: '[[ \$foo == "foo" ]]'
+        env:
+          - foo=foo

@@ -1,0 +1,7 @@
+task::state:
+  steps:
+    - name: do something
+      action: exec
+      input:
+        cmd: "echo hello"
+      notify: "apt-get update"

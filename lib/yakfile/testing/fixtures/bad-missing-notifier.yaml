@@ -1,0 +1,7 @@
+task::state:
+  steps:
+    - name: install memcached
+      action: exec
+      input:
+        cmd: apt-get install -y memcached
+      notify: foobar

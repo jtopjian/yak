@@ -1,0 +1,32 @@
+targets:
+  lxd:
+    type: lxd_containers
+    auth: lxd
+    options:
+      use_ipv6: true
+      config:
+        user.yak: memcached
+
+connections:
+  lxd:
+    type: lxd
+    auth: lxd
+    targets:
+      - lxd
+
+task::state:
+  steps:
+    - name: foobar
+      action: exec cmd="echo hi"
+
+    - name: add rabbitmq apt source
+      action: apt.source
+      input:
+        name: rabbitmq
+        uri: http://www.rabbitmq.com/debian/
+        distribution: testing
+        component: main
+        state: absent
+
+    - name: add cron entry
+      action: cron.entry name=foo command=ls minute=1 hour=2 sudo=true

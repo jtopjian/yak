@@ -1,0 +1,7 @@
+# comment
+host1.example.com
+host2.example.com
+// host3.example.com
+host$.example.com
+192.168.100.1
+fe80::f816:3eff:fe8c:c73a

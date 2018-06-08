@@ -1,0 +1,9 @@
+notifiers:
+  - name: apt-get update
+    action: exec
+    input:
+      cmd: apt-get update -qq
+  - name: apt-get update
+    action: exec
+    input:
+      cmd: apt-get update -qq

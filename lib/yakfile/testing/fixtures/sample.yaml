@@ -1,0 +1,87 @@
+vars:
+  foo: bar
+  bar: baz
+
+varfiles:
+  - /path/to/file.yaml
+
+targets:
+  textfile:
+    type: textfile
+    options:
+      file: hosts.txt
+  openstack-yyc:
+    type: openstack_instances
+    options:
+      cloud: yyc
+      tags:
+        - memcached
+
+connections:
+  local:
+    type: local
+    targets:
+      - textfile
+  ssh:
+    type: ssh
+    options:
+      private_key: /path/to/id_rsa
+      port: 22
+    targets:
+      - openstack-yyc
+
+notifiers:
+  - name: apt-get update
+    action: exec
+    input:
+      cmd: apt-get update -qq
+
+  - name: restart memcached
+    action: exec
+    input:
+      cmd: service memcached restart
+
+task::state:
+  defaults:
+    sudo: true
+    targets:
+      - textfile
+
+  steps:
+    - name: install apt repo
+      action: apt.repo
+      input:
+        name: repcached
+        source: abc
+      targets:
+        - openstack-yyc
+      notify: apt-get update
+
+    - name: install memcached
+      action: apt.get
+      input:
+        name: repcached
+        version: foo
+
+    - name: configure memory limits
+      action: file.line
+      input:
+        name: /etc/memcached/memcached.conf
+        line: "-m 64"
+        match: "^-m"
+        sudo: false
+      targets:
+        - openstack-yyc
+      notify: restart memcached
+
+task::stats:
+  defaults:
+    sudo: true
+
+  steps:
+    - name: collect memcached stats
+      action: cmd
+      input:
+        cmd: foo -bar
+      targets:
+        - textfile
